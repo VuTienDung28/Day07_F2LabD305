@@ -122,7 +122,9 @@ Cặp 2 đạt 0.9170, cao hơn cặp 1 dù hai câu dùng các từ không hoà
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-Nhóm F2 thống nhất dùng `k3_library.zip` và đúng 5 câu trong `benchmark.csv`. Tôi chạy `RecursiveChunker(chunk_size=500)` với `LocalEmbedder("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")`, tạo 41 chunks. Các câu cần phân biệt đối tượng hoặc nguồn có thẩm quyền dùng `search_with_filter`: câu 1 lọc `audience=student`, câu 2 lọc `category=circulation-policy`, câu 3 lọc `audience=student` và `category=library-fees`.
+Nhóm F2 thống nhất dùng `k3_library.zip` và đúng 5 câu trong `benchmark.csv`. Chiến lược cá nhân của tôi là `RecursiveChunker(chunk_size=500)` với thứ tự separator mặc định `"\n\n"`, `"\n"`, `". "`, `" "`, `""`, kết hợp `LocalEmbedder("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")`; corpus tạo ra 41 chunks. Tôi chọn cấu hình này vì nó giữ được cấu trúc đoạn và bảng tốt hơn Fixed Size/Sentence, đồng thời chỉ cần 41 chunks so với 87 chunks của Recursive 250 mà vẫn đạt 5/5 evidence trong top-3.
+
+Trước khi lọc chi tiết, chiến lược đạt 4/5 evidence ở top-1 và 5/5 ở top-3; Q3 về biểu phí đứng top-2 do một chunk hướng dẫn sinh viên có nhiều từ khóa gần nghĩa. Tôi dùng `search_with_filter` theo metadata có căn cứ trong câu hỏi: Q1 lọc `audience=student`, Q2 lọc `category=circulation-policy`, Q3 lọc `audience=student` và `category=library-fees`; Q4–Q5 không lọc. Sau lọc, cả 5 câu đều có đầy đủ evidence ở top-1. Bảng thử nghiệm và failure analysis chi tiết nằm trong `report/STRATEGY_ANALYSIS.md`.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
