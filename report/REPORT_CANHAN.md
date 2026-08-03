@@ -112,17 +112,19 @@ TestEmbeddingStoreDeleteDocument:        3 passed
 
 ## 4. Dự đoán độ tương tự (Similarity Predictions) — Cá nhân (5 điểm)
 
+Tôi chốt dự đoán trước khi chạy mô hình và dùng ngưỡng `0.50`: score từ `0.50` trở lên được xem là cao, dưới `0.50` được xem là thấp. Cả năm cặp được đánh giá bằng cùng mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
+
 | Cặp | Câu A | Câu B | Dự đoán    | Điểm thực tế | Đúng? |
 | --- | ----- | ----- | ---------- | ------------ | ----- |
-| 1   |       |       | cao / thấp |              |       |
-| 2   |       |       | cao / thấp |              |       |
-| 3   |       |       | cao / thấp |              |       |
-| 4   |       |       | cao / thấp |              |       |
-| 5   |       |       | cao / thấp |              |       |
+| 1 | Sinh viên đại học được mượn tối đa ba tài liệu trong hai tuần. | Mỗi sinh viên bậc đại học có thể vay ba tài liệu với thời hạn mượn hai tuần. | cao | 0.6834 | Có |
+| 2 | Người dùng không nên gửi lại thanh toán nếu giao dịch trực tuyến thất bại. | Users should not submit another payment after an online transaction fails. | cao | -0.0914 | Không |
+| 3 | Sách Course Reserve chỉ được mượn trong hai giờ. | Mỗi người chỉ được mượn một tài liệu Course Reserve tại một thời điểm. | cao | 0.7985 | Có |
+| 4 | Sinh viên được phép gia hạn sách một lần. | Sinh viên không được phép gia hạn sách. | thấp | 0.9705 | Không |
+| 5 | Phí trả sách quá hạn là 10.000 đồng mỗi ngày. | Dự báo thời tiết cho biết ngày mai có mưa lớn. | thấp | 0.4292 | Có |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn ý nghĩa?**
 
-> _Viết 2-3 câu:_
+> Bất ngờ nhất là cặp 4 có score `0.9705` dù hai câu đối lập vì từ phủ định “không”; mô hình nhận diện rất mạnh phần từ vựng và cấu trúc chung nhưng chưa phản ánh tốt quan hệ phủ định. Cặp song ngữ ở cặp 2 cũng có score thấp `-0.0914` dù cùng ý nghĩa, cho thấy nhãn “multilingual” không bảo đảm mọi cách diễn đạt xuyên ngôn ngữ đều được căn chỉnh tốt. Vì vậy score embedding cần được kiểm tra bằng dữ liệu thực tế thay vì xem như bằng chứng tuyệt đối về ý nghĩa.
 
 ---
 
@@ -130,19 +132,21 @@ TestEmbeddingStoreDeleteDocument:        3 passed
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
+Tôi dùng corpus `data/k3_library`, mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` và `RecursiveChunker` với `chunk_size=500`, ưu tiên separator theo heading: `\n## `, `\n### `, `\n\n`, `\n`, `. `, khoảng trắng và fallback theo ký tự. Cấu hình tạo 50 chunk và được giữ nguyên cho cả năm câu hỏi; Q1 và Q3 dùng thêm filter `audience=student`. Để chạy luồng `KnowledgeBaseAgent` mà không dùng dịch vụ chat bên ngoài, `llm_fn` là hàm extractive cục bộ chọn các dòng trong context có độ phủ từ khóa cao nhất; các nhận xét dưới đây không được trình bày như kết quả của một generative LLM.
+
 | #   | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 | --- | --------------- | ------------------------------------ | ---------- | ------------------------------ | ------------------------------- |
-| 1   |                 |                                      |            |                                |                                 |
-| 2   |                 |                                      |            |                                |                                 |
-| 3   |                 |                                      |            |                                |                                 |
-| 4   |                 |                                      |            |                                |                                 |
-| 5   |                 |                                      |            |                                |                                 |
+| 1 | How many items may an undergraduate student borrow, for how long, and how many renewals are allowed? | Chính sách undergraduate: tối đa 3 tài liệu, thời hạn 2 tuần; chunk chưa chứa quy định gia hạn. | 0.6570 | Có, nhưng chỉ bao phủ một phần gold answer. | Trả đúng 3 tài liệu/2 tuần nhưng trộn nhầm phần gia hạn của graduate policy thành một lần thêm 2 tuần; gold answer yêu cầu gia hạn một lần. |
+| 2 | How many Course Reserve books may one user borrow at a time? | Bảng Course Reserve: một tài liệu mỗi người tại một thời điểm, sử dụng trong 2 giờ. | 0.6869 | Có, đúng ngay top-1. | Trả đúng một Course Reserve item trong 2 giờ, nhưng kèm thêm một câu không liên quan về graduate borrowing. |
+| 3 | What is the overdue fine for normal material, Course Reserve material, and equipment? | Normal: 10.000 VND/ngày; Course Reserve: 10.000 VND/giờ; equipment: 10.000 VND/ngày. | 0.5733 | Có, đúng ngay top-1. | Trả đủ và đúng cả ba mức phạt theo gold answer. |
+| 4 | How long is a requested library item held after it is ready for collection? | Top-1 nói về thời hạn mượn thiết bị một ngày làm việc, không trả lời thời gian giữ item được yêu cầu. | 0.6241 | Không ở top-1; chunk đúng nằm ở top-2. | Nhờ context top-3, agent vẫn tìm được thông tin item được giữ trong 2 ngày. |
+| 5 | What should a user do when an online library payment fails after accurate card information was entered? | Không gửi lại thanh toán nhiều lần và liên hệ nhân viên tại circulation desk. | 0.7383 | Có, đúng ngay top-1. | Trả đúng hai hành động: không submit lại và liên hệ library staff để được hỗ trợ. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** \_\_ / 5
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 
-> _Viết 2-3 câu:_
+> Qua bộ benchmark chung do nhóm tổng hợp, tôi học được rằng cần khóa gold answer và evidence section trước khi xem kết quả để tránh đánh giá relevance theo cảm tính. Q4 cho thấy score cao nhất chưa bảo đảm top-1 trả lời đúng câu hỏi, còn Q1 cho thấy ghép nhiều nhóm đối tượng vào context có thể làm agent trộn sai chính sách; vì vậy luôn phải kiểm tra nội dung top-3 và metadata chứ không chỉ nhìn score.
 
 ---
 
@@ -153,6 +157,6 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 | Khởi động (Warm-up)                             | 5 / 5            |
 | Hướng tiếp cận của tôi (My Approach)            | 10 / 10          |
 | Hoàn thiện code (Core Implementation — tests)   | 30 / 30          |
-| Dự đoán độ tương tự (Similarity Predictions)    | / 5              |
-| Kết quả truy xuất của tôi (Competition Results) | / 10             |
-| **Tổng phần cá nhân**                           | **45 / 60 (tạm tính, chưa gồm Phần 4–5)** |
+| Dự đoán độ tương tự (Similarity Predictions)    | 5 / 5            |
+| Kết quả truy xuất của tôi (Competition Results) | 8 / 10           |
+| **Tổng phần cá nhân**                           | **58 / 60**       |
