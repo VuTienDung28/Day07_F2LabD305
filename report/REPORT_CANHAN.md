@@ -106,22 +106,22 @@ Mô hình dùng để thực nghiệm: `sentence-transformers/paraphrase-multili
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-**Thiết lập thực nghiệm:** Tôi dùng cùng corpus `data/k3_library` và đúng năm câu hỏi trong `benchmark.csv`. Mô hình embedding là `paraphrase-multilingual-MiniLM-L12-v2`. Tôi so sánh ba cấu hình: FixedSize 500/50 (34 chunks, top-3 hit 5/5, MRR 0.866667), Sentence 3 câu/chunk (51 chunks, top-3 hit 4/5, MRR 0.800000), và Recursive 500 (41 chunks, top-3 hit 5/5, MRR 0.800000). Tôi chọn **FixedSizeChunker (`chunk_size=500`, `overlap=50`)** làm chiến lược cá nhân vì đạt đủ 5/5 evidence hits và có thứ hạng trung bình tốt nhất.
+**Thiết lập thực nghiệm:** Tôi dùng cùng corpus `data/k3_library` và đúng năm câu hỏi trong `benchmark.csv`. Mô hình embedding là `paraphrase-multilingual-MiniLM-L12-v2`; chiến lược cá nhân là **FixedSizeChunker (`chunk_size=500`, `overlap=50`)**, tạo 34 chunks. Thực nghiệm được tái lập bằng `python bench.py`. Relevance được kiểm tra trên **nội dung thực tế của từng chunk** bằng các evidence phrase lấy từ gold answer, không chỉ dựa vào việc chunk có cùng `doc_id`. Kết quả có 4/5 câu chứa đầy đủ gold evidence trong top-3 và đạt 8/10 theo rubric.
 
-> Repo chỉ cung cấp `demo_llm` trả về bản xem trước prompt, không phải mô hình sinh câu trả lời thật. Vì vậy cột cuối ghi **câu trả lời grounded dạng tóm tắt**, được rút trực tiếp từ evidence trong top-3 và đối chiếu với gold answer; không được trình bày như kết quả của một API LLM bên ngoài.
+> Để không phụ thuộc API key, `bench.py` truyền một `llm_fn` trích xuất cục bộ vào `KnowledgeBaseAgent`. Hàm này chọn các câu evidence từ chính retrieved context bằng embedding similarity và không thêm dữ kiện ngoài context. Cột cuối tóm tắt output grounded thực tế của Agent; câu 2 được ghi là thiếu thông tin thay vì chép gold answer không có trong top-3.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
 | 1 | How many items may an undergraduate student borrow, for how long, and how many renewals are allowed? | `undergraduate-borrowing`: quyền mượn của sinh viên đại học; filter `audience=student`. | 0.654704 | Có — evidence ở rank 1 | Sinh viên đại học được mượn 3 tài liệu trong 2 tuần và được gia hạn một lần. |
-| 2 | How many Course Reserve books may one user borrow at a time? | `course-reserve`: mô tả Course Reserve và thời gian sử dụng; evidence đầy đủ trong `circulation-policy` ở rank 3. | 0.628819 | Liên quan một phần — evidence chuẩn ở rank 3 | Mỗi người được mượn một Course Reserve item tại một thời điểm và chỉ sử dụng tối đa 2 giờ. |
+| 2 | How many Course Reserve books may one user borrow at a time? | `course-reserve`: mô tả Course Reserve và thời gian sử dụng tối đa 2 giờ. | 0.628819 | Liên quan một phần — top-3 không chứa giới hạn “one item per user” | Agent xác định được thời gian sử dụng 2 giờ nhưng không đủ context để kết luận số lượng được mượn tại một thời điểm. |
 | 3 | What is the overdue fine for normal material, Course Reserve material, and equipment? | `financial-regulations-library-fees`: bảng phí quá hạn; filter `audience=student`. | 0.592976 | Có — evidence ở rank 1 | Phí là 10.000 VND/tài liệu/ngày với tài liệu thường, 10.000 VND/tài liệu/giờ với Course Reserve và 10.000 VND/thiết bị/ngày. |
-| 4 | How long is a requested library item held after it is ready for collection? | `circulation-policy`: quy trình yêu cầu và giữ tài liệu. | 0.618119 | Có — evidence ở rank 1 | Tài liệu được giữ 2 ngày; nếu không đến nhận trong thời hạn này thì yêu cầu bị hủy. |
+| 4 | How long is a requested library item held after it is ready for collection? | Rank 1 của `circulation-policy` nói về thời hạn trả thiết bị, chưa trả lời câu hỏi; chunk chứa đầy đủ evidence nằm ở rank 3. | 0.618119 | Có trong top-3 nhưng không ở top-1 | Agent trích xuất được rằng tài liệu được giữ 2 ngày và yêu cầu bị hủy nếu không đến nhận trong thời hạn đó. |
 | 5 | What should a user do when an online library payment fails after accurate card information was entered? | `fines-and-payment`: hướng dẫn xử lý giao dịch không thành công. | 0.757613 | Có — evidence ở rank 1 | Không gửi lại thanh toán nhiều lần; liên hệ nhân viên tại quầy lưu hành để được hỗ trợ. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5
+**Bao nhiêu câu hỏi trả về chunk chứa đầy đủ gold evidence trong top-3?** 4 / 5. Câu 2 chỉ có chunk liên quan một phần.
 
-**Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
-> Kết quả chuẩn bị cho phần so sánh nhóm cho thấy không có một chunker luôn đứng đầu ở mọi câu hỏi. SentenceChunker tạo chunk dễ đọc nhưng bỏ lỡ evidence chuẩn của câu Course Reserve trong top-3; RecursiveChunker đưa evidence đó lên rank 1 nhưng làm evidence của hai câu khác xuống rank 2. FixedSize với overlap giữ được evidence của cả năm câu và đạt MRR cao nhất, cho thấy cần đánh giá bằng cùng benchmark thay vì chỉ nhìn độ mạch lạc của chunk.
+**Điều hay nhất tôi học được để trao đổi trong phần demo nhóm:**
+> Một chunk thuộc đúng tài liệu chưa chắc đã chứa đúng evidence. Ban đầu nếu chỉ so sánh `doc_id`, câu 2 và câu 4 có thể bị đánh dấu cao hơn thực tế; khi kiểm tra trực tiếp nội dung chunk, câu 2 thiếu giới hạn số lượng và câu 4 chỉ có evidence đầy đủ ở rank 3. Vì vậy nhóm cần đọc top-3 và đối chiếu từng chunk với gold answer thay vì chỉ tin score hoặc tên tài liệu.
 
 ---
 
@@ -133,5 +133,5 @@ Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân củ
 | Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | 9 / 10 |
-| **Tổng phần cá nhân** | **59 / 60** |
+| Kết quả truy xuất của tôi (Competition Results) | 8 / 10 |
+| **Tổng phần cá nhân** | **58 / 60** |
