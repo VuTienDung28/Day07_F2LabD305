@@ -122,21 +122,21 @@ Cặp 2 đạt 0.9170, cao hơn cặp 1 dù hai câu dùng các từ không hoà
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-> **Chờ dữ liệu nhóm F2:** Chưa điền phần này vì nhóm chưa thống nhất bộ tài liệu, 5 câu hỏi đánh giá và gold answers. Kết quả phải được chạy bằng đúng corpus và câu hỏi chung của nhóm; không dùng dữ liệu mẫu để thay thế.
+Nhóm F2 thống nhất dùng `k3_library.zip` và đúng 5 câu trong `benchmark.csv`. Tôi chạy `RecursiveChunker(chunk_size=500)` với `LocalEmbedder("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")`, tạo 41 chunks. Các câu cần phân biệt đối tượng hoặc nguồn có thẩm quyền dùng `search_with_filter`: câu 1 lọc `audience=student`, câu 2 lọc `category=circulation-policy`, câu 3 lọc `audience=student` và `category=library-fees`.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | Chờ câu hỏi chung của nhóm | — | — | — | — |
-| 2 | Chờ câu hỏi chung của nhóm | — | — | — | — |
-| 3 | Chờ câu hỏi chung của nhóm | — | — | — | — |
-| 4 | Chờ câu hỏi chung của nhóm | — | — | — | — |
-| 5 | Chờ câu hỏi chung của nhóm | — | — | — | — |
+| 1 | Sinh viên đại học được mượn bao nhiêu tài liệu, trong bao lâu và được gia hạn mấy lần? | `undergraduate-borrowing::chunk_0`: tối đa 3 tài liệu, thời hạn 2 tuần, gia hạn 1 lần nếu chưa quá hạn và không có người đặt | 0.6621 | Có | Được mượn 3 tài liệu trong 2 tuần và gia hạn 1 lần. |
+| 2 | Mỗi người được mượn bao nhiêu sách Course Reserve cùng lúc? | `circulation-policy::chunk_2`: Course Reserve dùng trong 2 giờ, 1 tài liệu/người/lần | 0.6869 | Có | Mỗi người được mượn 1 tài liệu Course Reserve mỗi lần, tối đa 2 giờ. |
+| 3 | Phí quá hạn cho tài liệu thường, Course Reserve và thiết bị là bao nhiêu? | `financial-regulations-library-fees::chunk_0`: liệt kê ba mức phí quá hạn hiện hành | 0.5967 | Có | Tài liệu thường: 10.000 VND/ngày/tài liệu; Course Reserve: 10.000 VND/giờ/tài liệu; thiết bị: 10.000 VND/ngày/thiết bị. |
+| 4 | Tài liệu được yêu cầu sẽ được giữ trong bao lâu sau khi sẵn sàng nhận? | `circulation-policy::chunk_10`: giữ 2 ngày rồi hủy yêu cầu nếu không được nhận | 0.7566 | Có | Tài liệu được giữ 2 ngày; quá thời hạn mà không nhận thì yêu cầu bị hủy. |
+| 5 | Người dùng nên làm gì khi thanh toán thư viện thất bại dù đã nhập đúng thông tin thẻ? | `fines-and-payment::chunk_4`: không gửi lại thanh toán, liên hệ quầy lưu hành | 0.7556 | Có | Không thử thanh toán lại; liên hệ nhân viên tại quầy lưu hành để được hỗ trợ. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** Chưa đánh giá / 5
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 
-Chưa có dữ liệu demo của nhóm. Nội dung này sẽ được bổ sung sau khi nhóm F2 chạy cùng 5 câu hỏi trên các chiến lược riêng và so sánh kết quả.
+Qua quá trình nhóm chốt corpus và benchmark, tôi học được rằng metadata về đối tượng và loại chính sách có thể quan trọng ngang với điểm cosine. Với các trang FAQ và dịch vụ có thông tin cũ, ưu tiên tài liệu chính thức có phiên bản rồi lọc theo `audience`/`category` giúp tránh lấy một chunk gần nghĩa nhưng không phải nguồn có thẩm quyền.
 
 ---
 
@@ -148,5 +148,5 @@ Chưa có dữ liệu demo của nhóm. Nội dung này sẽ được bổ sung 
 | Hướng tiếp cận của tôi (My Approach) | 10 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | Chưa tự đánh giá / 10 |
-| **Tổng phần cá nhân hiện đã hoàn thành** | **50 / 60** |
+| Kết quả truy xuất của tôi (Competition Results) | 10 / 10 |
+| **Tổng phần cá nhân** | **60 / 60** |
