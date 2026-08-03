@@ -132,11 +132,11 @@ Tôi chốt dự đoán trước khi chạy mô hình và dùng ngưỡng `0.50`
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-Tôi dùng corpus `data/k3_library`, mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` và `RecursiveChunker` với `chunk_size=500`, ưu tiên separator theo heading: `\n## `, `\n### `, `\n\n`, `\n`, `. `, khoảng trắng và fallback theo ký tự. Cấu hình tạo 50 chunk và được giữ nguyên cho cả năm câu hỏi; Q1 và Q3 dùng thêm filter `audience=student`. Để chạy luồng `KnowledgeBaseAgent` mà không dùng dịch vụ chat bên ngoài, `llm_fn` là hàm extractive cục bộ chọn các dòng trong context có độ phủ từ khóa cao nhất; các nhận xét dưới đây không được trình bày như kết quả của một generative LLM.
+Tôi dùng corpus `data/k3_library`, mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` và `RecursiveChunker` với `chunk_size=500`, ưu tiên separator theo heading: `\n## `, `\n### `, `\n\n`, `\n`, `. `, khoảng trắng và fallback theo ký tự. Cấu hình tạo 50 chunk và được giữ nguyên cho cả năm câu hỏi; Q1 và Q3 dùng thêm filter `audience=student`. Để chạy luồng `KnowledgeBaseAgent` mà không dùng dịch vụ chat bên ngoài, `llm_fn` là hàm extractive cục bộ chọn các dòng trong context có độ phủ từ khóa cao nhất; các nhận xét dưới đây không được trình bày như kết quả của một generative LLM. Có thể tái lập thí nghiệm bằng `python bench.py`; raw top-3 được lưu tại [`results/vu_tien_dung_recursive.json`](../results/vu_tien_dung_recursive.json).
 
 | #   | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 | --- | --------------- | ------------------------------------ | ---------- | ------------------------------ | ------------------------------- |
-| 1 | How many items may an undergraduate student borrow, for how long, and how many renewals are allowed? | Chính sách undergraduate: tối đa 3 tài liệu, thời hạn 2 tuần; chunk chưa chứa quy định gia hạn. | 0.6570 | Có, nhưng chỉ bao phủ một phần gold answer. | Trả đúng 3 tài liệu/2 tuần nhưng trộn nhầm phần gia hạn của graduate policy thành một lần thêm 2 tuần; gold answer yêu cầu gia hạn một lần. |
+| 1 | How many items may an undergraduate student borrow, for how long, and how many renewals are allowed? | Chính sách undergraduate: tối đa 3 tài liệu, thời hạn 2 tuần; chunk chưa chứa quy định gia hạn. | 0.6570 | Có, nhưng chỉ bao phủ một phần gold answer. | Trả đúng 3 tài liệu/2 tuần nhưng bỏ sót số lần gia hạn vì section `Renewal` không xuất hiện trong top-3. |
 | 2 | How many Course Reserve books may one user borrow at a time? | Bảng Course Reserve: một tài liệu mỗi người tại một thời điểm, sử dụng trong 2 giờ. | 0.6869 | Có, đúng ngay top-1. | Trả đúng một Course Reserve item trong 2 giờ, nhưng kèm thêm một câu không liên quan về graduate borrowing. |
 | 3 | What is the overdue fine for normal material, Course Reserve material, and equipment? | Normal: 10.000 VND/ngày; Course Reserve: 10.000 VND/giờ; equipment: 10.000 VND/ngày. | 0.5733 | Có, đúng ngay top-1. | Trả đủ và đúng cả ba mức phạt theo gold answer. |
 | 4 | How long is a requested library item held after it is ready for collection? | Top-1 nói về thời hạn mượn thiết bị một ngày làm việc, không trả lời thời gian giữ item được yêu cầu. | 0.6241 | Không ở top-1; chunk đúng nằm ở top-2. | Nhờ context top-3, agent vẫn tìm được thông tin item được giữ trong 2 ngày. |
@@ -146,7 +146,7 @@ Tôi dùng corpus `data/k3_library`, mô hình `sentence-transformers/paraphrase
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 
-> Qua bộ benchmark chung do nhóm tổng hợp, tôi học được rằng cần khóa gold answer và evidence section trước khi xem kết quả để tránh đánh giá relevance theo cảm tính. Q4 cho thấy score cao nhất chưa bảo đảm top-1 trả lời đúng câu hỏi, còn Q1 cho thấy ghép nhiều nhóm đối tượng vào context có thể làm agent trộn sai chính sách; vì vậy luôn phải kiểm tra nội dung top-3 và metadata chứ không chỉ nhìn score.
+> Qua bộ benchmark chung do nhóm tổng hợp, tôi học được rằng cần khóa gold answer và evidence section trước khi xem kết quả để tránh đánh giá relevance theo cảm tính. Q4 cho thấy score cao nhất chưa bảo đảm top-1 trả lời đúng câu hỏi, còn Q1 cho thấy một heading bị tách khỏi chunk được truy xuất có thể làm agent bỏ sót điều kiện quan trọng; vì vậy luôn phải kiểm tra nội dung top-3 và metadata chứ không chỉ nhìn score.
 
 ---
 
