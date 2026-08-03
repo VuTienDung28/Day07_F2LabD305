@@ -11,7 +11,6 @@ category: "borrowing-faq"
 language: "en"
 institution: "vinuni"
 collection_method: "manual-public-page"
-data_quality_note: "Fine amounts on this FAQ conflict with another VinUni library service page; verify the latest official tariff before using a fine amount as a gold answer."
 ---
 
 # Library Borrowing FAQ
@@ -37,18 +36,6 @@ Users may borrow or return print books with a self-check machine on the first or
 | Faculty | 5 | Up to 6 months | 1 time |
 | Visiting students | Determined by library leadership | Not stated | Not stated |
 | Guests, interns, and alumni | 0 | Not eligible | 0 |
-
-## What does this FAQ say about overdue fines?
-
-This FAQ states the following amounts:
-
-- Normal material: 20,000 VND per overdue document per day.
-- Course-specific material: 20,000 VND per overdue document per hour.
-- Equipment: 20,000 VND per overdue item per hour.
-
-It also states that failure to pay on time does not remove the responsibility to return or renew items. If an item has not been returned within 30 days after its due date, the patron must pay both the overdue fine and an additional fee equivalent to the item's cover price.
-
-These figures conflict with amounts on another VinUni library service page. The latest Financial Regulations and Tariff should be checked before treating a fine amount as authoritative.
 
 ## What should a patron do after losing or damaging an item?
 

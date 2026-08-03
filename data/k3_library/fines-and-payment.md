@@ -31,7 +31,6 @@ VinUni accepts Visa, MasterCard, American Express, JCB, UnionPay, and ATM cards 
 
 Credit and debit card payments require the information and verification requested by the issuing bank. ATM-card or bank-account payments may require an OTP. For QR payment, the user selects a supported mobile banking application and scans the displayed QR code.
 
-Users should never store card numbers, verification codes, or OTPs in the lab dataset.
 
 ## After a Successful Transaction
 

@@ -4,7 +4,7 @@ title: "Graduate Student, Faculty, and Instructor Library Services"
 source_url: "https://library.vinuni.edu.vn/services/borrow-and-request/graduate-faculty-and-instructors/"
 retrieved_at: "2026-08-03"
 document_version: "not-stated"
-audience: "faculty"
+audience: "all"
 audience_detail: "graduate-student-faculty-instructor"
 department: "library"
 category: "borrowing-policy"
@@ -33,10 +33,10 @@ Items are held for two days. They may be checked out at the circulation counter,
 
 ## Fines and Other Charges
 
-Patrons may be fined for late returns or when materials or equipment are damaged or lost. According to this service page, the overdue-material fine is 10,000 VND per item for each business day after its due date. The fine accrues until the item is reported lost or returned. Appeals are considered by the library case by case.
+Patrons may be fined for late returns or when materials or equipment are damaged or lost. Fines follow VinUni's Financial Regulations and Tariff. The fine accrues until the item is reported lost or returned. Appeals are considered by the library case by case.
 
 ## Equipment Loans
 
 Equipment is available from the circulation desk for use inside the library. The loan period for most equipment is three hours. Available items include mice, headphones, iPads, USB memory sticks, and mobile-device chargers.
 
-According to this service page, the fine for late equipment return is 10,000 VND per hour or part of an hour. Replacement-part costs are determined by library staff.
+Individuals are responsible for the cost of lost equipment. Replacement-part costs are determined by library staff.

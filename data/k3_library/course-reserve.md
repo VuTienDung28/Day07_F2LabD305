@@ -23,7 +23,7 @@ Course Reserve provides students with access to selected course readings in prin
 
 Physical Course Reserve items are kept at the circulation desk and organized by call number. Students need the call number to request an item.
 
-Course Reserve materials may be used only inside the library for a maximum of two hours. A user may borrow no more than two reserve items at a time.
+Course Reserve materials may be used only inside the library for a maximum of two hours.
 
 ## Faculty, Staff, and Instructor Requests
 
